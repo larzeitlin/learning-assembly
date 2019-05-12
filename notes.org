@@ -1,0 +1,338 @@
+#+TITLE:ASSEMBLY NOTES
+#+AUTHOR: Luke Zeitlin
+#+OPTIONS: toc:1
+#+latex_class_options: [10pt]
+#+latex_header: \usepackage{setspace}
+#+latex_header: \onehalfspacing
+ 
+[[https://www.tutorialspoint.com/assembly_programming/assembly_basic_syntax.html][Link to tutorial]]
+
+* Three Sections
+An assembly program has the following three sections: Data, BSS, Text.
+** data
+The following syntax denotes the beginning of the data section: 
+#+BEGIN_SRC asm
+section .data
+#+END_SRC
+This section contains initialized data and constants. Does not change at runtime.
+** bss
+This denotes the beginning of the variable section: 
+#+BEGIN_SRC asm
+section .bss
+#+END_SRC
+The bss section contains variable declerations. 
+** text
+This secion contains the actual code.
+#+BEGIN_SRC asm
+section .text
+  global _start
+_start: 
+#+END_SRC
+Global start lets the kernel know where the program execution begins.
+* Comments
+Comments are preceded with a semicolon. Comments can contain any printable character
+#+BEGIN_SRC asm
+; this is a full line comment
+add eax, ebx  ; this is an inline comment
+#+END_SRC
+* Statments
+There are three types of statments:
+- instructions
+
+These tell the processor what to do.Each instruction has an op-code.
+- directives or pseudo-ops
+
+These tell the assembler about the various aspects of the assembly process. These are non-executable.
+- macros
+
+Text substitution
+
+* Tool Chain
+The softare tools used in creating assembly programs are as follows:
+- Assembler
+- Linker
+- Loader
+- Debugger
+
+** Assembler 
+The assembler is a program converts assembly code into machine language (binary). The output file is known as an object file, hence the .o suffix. During this process the variable names get removed and converted into addresses.
+
+*** Assembler commands for yasm
+The following command will create a list file for a given program written in a .asm: 
+
+#+BEGIN_SRC shell
+yasm -g dwarf2 -f elf64 example.asm -l example.lst
+#+END_SRC
+
+-  ~-g dwarf2~ instructs the assembler to include debugging information in the final objet file.
+- ~-f elf64~  instructs the assembler to output a ELF64 object file, sutable for 64-bit linux systems.
+- ~-l example.lst~ tells the assembler to create a lise file.
+
+**** List File 
+
+This file gives a line by line mapping of  assembly to machine language. It can be useful for debugging.
+
+**** Two Pass Assembler 
+
+Since assembly language can have control flow commands, such as jumps, if statemtents, etc. Assembly is not necesserily executed linerly. To create machine code from an assembly programm the assembler takes two passed over the code. 
+
+***** First Pass
+
+Often this includes tasks such as creating a symbol table, expanding macros and evaluating constant expressions. 
+
+***** Second Pass
+
+This usually includes the final generation of the code, creation of the list file, if required, and creating the object file.
+
+** Linker
+Also known as the linkage editor. This combines object files into a single executable. It also includes any libraries required for execution. The following is a command for the GNU Gold linker:
+
+#+BEGIN_SRC shell
+ld -g -o example example.o
+#+END_SRC
+
+The ~-g~ flag tells the linker to include debugging information. The ~-o~ flag specifies the output file, here ~example~. Multiple object files can be linked together. When using a function from another file, the function must be flagged with ~extern~.
+
+*** Dynamic Linking
+Linux supports dynamic linking. This allows resolution of some symbols be postponed untill the execution of the program. Under Linux dynamically linked object files have the extention ~.so~, shared object. The Windows equivilant is ~.dll~.
+
+*** Assemble/Link Script
+The following is an example of a bash script to automate the calls to the assembler and linker into a single call.
+
+#+BEGIN_SRC bash
+#!/bin/bash
+
+if [ -z $1 ]; then
+  echo "Usage: ./asm64 <asmMainFile> (no extension)"
+  exit
+fi
+
+# verify no extentions were entered
+if [ ! -e "$1.asm" ]; then
+  echo "Error, $1.asm not found."
+  echo "Note, do not enter file extensions."
+  exit
+fi
+
+#  Compile, assemble, and link
+
+yasm -Worphan-lables -g dwarf2 -f elf64 $1.asm -l $1.lst ld -g -o $1 $1.o  
+
+#+END_SRC
+
+** Loader
+This is the part of the operating system that loads the program from secondary storage into memory. Under Linux this is done with the program name. For example, if the program is called ~hello_world~, the command will be:
+
+#+BEGIN_SRC shell
+./hello_world
+#+END_SRC
+** Debugger
+
+This is a program that can control the execution of the assembly program in order to inspect how it is (or is not) working. 
+
+* Syntax of Statements
+Assembly language has one statement per line
+#+BEGIN_SRC 
+[label] mnemonic [operands] [; comment]
+#+END_SRC
+Fields in the square brackets are optional. There are two basic parts to the instruction - the name (nmemonic) and the operands.For example: 
+#+BEGIN_SRC asm 
+INC COUNT ; increment the variable COUNT
+
+MOV TOTAL ; Transfer the total value 48 into memory variable TOTAL
+#+END_SRC
+* Assembly Hello World
+#+BEGIN_SRC asm
+
+section .text
+  global _start  ; must be declared for linker
+_start: 
+  mov edx,len ; message length
+  mov ecx,msg ; message to write
+  mov ebx,1   ; file descriptor (stdout)
+  mov eax,4   ; system call number (sys_write)
+  int 0x80    ; call kernel
+  
+  mov eax,1   ; system call number (sys_exit)
+  int 0x80    ; call kernel
+
+section .data
+msg db 'Hello, world!', 0xa ; string to be printed
+en equ $ - msg ; length of the string
+
+#+END_SRC
+* Compiling and linking with nasm
+- save the above as a file with extension .asm, for example: hello.asm
+- assemble program with: 
+#+BEGIN_SRC shell
+nasm -f elf hello.asm
+#+END_SRC
+- if no errors, hello.o will have been created
+- To link the object file and create the executable file named hello: 
+#+BEGIN_SRC shell
+ld -m elf_i386 -s -o hello hello.o
+#+END_SRC
+- execute with: 
+#+BEGIN_SRC shell
+./hello
+#+END_SRC
+* Memory Segments
+** Segmented memory model:
+In a segmented memory model the system memory is divided into idependent segments. Segments are used to store specific types of data. One segment for instruction codes, one for data elements, etc.
+** Data segment
+Represented by the ~.data~ section and the ~.bss~ section. The ~.data~ section is holds static data that remains unchanges during the course of the program. The ~.bss~ section is also for static data. Data here are declared during the course of the program. The ~.bss~ section is zero filled prior to execution.
+** Code segment
+Represented by the ~.text~ section. Fixed data that stores instruction codes.
+** Stack
+This contains data passed to functions and procedures during the course of a program.
+* Registers
+In order to avoid the slow process of reading and storing data in memory, the processor has temporary storage locations called ~registers~. These can store data elements for processing without having to access memory.
+ 
+** Processor Registers
+The 32 bit processor has 10 registers. These are grouped into the following categories: 
+- General (Data, Pointer, Index) 
+- Control 
+- Segment
+
+*** General Registers
+**** Data
+
+These are used for arithmetic, logic and other operations. They have three different modes of usage:
+- As complete 32-bit registers: EAX, EBX, ECX, EDX
+- The lower halves can be used as four 16 bit data registers: AX, BX, CX, DX
+- The lower halves of the above 16 bit registers can be used as eight 8-bit registers: AH, AL, BH, BL, CH, CL, DH, DL
+
+#+BEGIN_SRC 
+......................+AX++Accumulator+
+EAX |----------------|---AH---|---AL---|
+
+......................+++++BX++Base++++
+EBX |----------------|---BH---|---BL---|
+
+......................+++CX++Counter+++
+ECX |----------------|---CH---|---CL---|
+
+......................++++DX++Data+++++
+EDX |----------------|---DH---|---DL---|
+#+END_SRC
+
+- AX - ~Primary Accumulator~ 
+I/O for most arithmetic instructions, for example multiplication. One operand is stored in other EAX, AX or AL depending on size.
+- BX - ~Base~
+Sometimes used in index addressing.
+- CX - ~Count~
+Stores loop counts in various iterative operations
+- DX - ~Data~:
+Also used in I/O. Notably when large numbers are involved. 
+
+**** Pointer Registers
+
+Stores addresses in memory. In 32-bit these are EIP, ESP and EBP. In 16-bit these correspond to IP, SP and BP.
+- IP - ~Instruction Pointer~
+Stores the ~offset address~ of the next instruction to be executed. In combination with the ~CS~ register (CS:IP) gives the full address of the current instruction in code segment.
+- SP - ~Stack Pointer~
+Provides the offset value in the program stack. In combination with the ~SS~ register (SS:SP) gives the current position of data or address in the program stack.
+- BP - ~Base Pointer~
+Helps in referencing the parameter variables passed to a subroutine. The address in ~SS~
+in combination with the offset BP gives the location of a parameter. Can also be combined with DI and SI as a base register for special addressing. 
+
+**** Index Registers
+
+ESI and EDI in 32-bit, or SI and DI in 16-bit.
+- SI - ~Source Index~
+Source index for string operations
+- DI - ~Destination Index~
+Destination index for string operations.
+
+*** Control
+For comparisons and conditional instructions that control flags.
+- OF - ~Overflow Flag~
+Indicates overflow of leftmost bit in a signed math operation
+- DF - ~Direction Flag~
+In string comparison operations, indicates left or right direction of movement. 0 for left-to-right and 1 is right-to-left
+- IF - ~Interrupt Flag~
+Flags if keyboard or other interupts are to be ignored or processed. 0 for ignored or 1 for processed.
+- TF - ~Trap Flag~
+Allows the procssor to wor in single step mode for debug perposes. 
+- SF - ~Sign Flag~ 
+Indicates the sign of a arithmetic result.
+- ZF - ~Zero Flag~
+Indicates whether a result of an arithmetic expression is zero.
+- AF - ~Auxiliary Carry Flag~
+Used for specialized arithmetic to carry from bit 3 to bit 4.
+- PF - ~Parity Flag~
+Indicates the total number of 1 (on) bits in the result of an arithmetic expression. If even then 0, odd then 1.
+- CF - ~Carry Flag~
+Contains the carry from the leftmost bit after an atrithmetic operation. It also stores the contents of the last bit of a ~shift~ or ~rotate~ operation.
+
+#+CAPTION: Positions of flag in the flags register
+| Flag |    |    |    |    |  O |  D | I | T | S | Z |   | A |   | P |   | C |
+|------+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+---|
+| Bit  | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+
+*** Segment Registers
+
+These refer to specific areas defined for data, code and stack. 
+- CS - ~Code Segment~
+Contains the starting address of the code segment.
+- DS - ~Data Segment~
+Contains the starting address of the data segment.
+- SS - ~Stack Segment~
+Contains the starting address of the stack segment.
+
+There are additional segment registers: ES, FS, GS. 
+
+All memory locations within a segment are relitive to the starting address of the segment. Since all segments will start at an address that is evently divisable by 16 (hex 10) there is always a zero in the rightmost hex digit. This zero is not stored in segment registers.
+
+** Example of using registers
+
+#+BEGIN_SRC asm
+section .text
+  global _start   ; must be declared for linker (gcc)
+
+_start:           ; tell linter entry point
+  mov edx,len     ; message length
+  mov ecx,msg     ; message to write
+  mov ebx,1       ; file descriptor (stout)
+  mov eax,4       ; system call number (sys_write)
+  int 0x80        ; call kernel
+  
+  mov edx,9       ; message length
+  mov ecx,s2      ; message to write
+  mov ebx,1       ; file descriptor (stout)
+  mov eax,4       ; system call number (sys_write)
+  int 0x80        ; call kernel
+  
+  mov eax,1       ; system call number (sys_exit)
+  int 0x80        ; call 
+
+section .data
+msg db 'Displaying 9 stars',0xa  ; a message
+len equ $ - msg ; length of message
+s2 times 9 db '*'
+#+END_SRC
+* System Calls
+
+* Related Topics
+** Addressing data in memory
+The process through which execution is controlled is called the ~fetch-decode-execute cycle~. The instruction is fetched from memory. The processor can access one or more bytes of memory at a given time.
+The processor stores data in ~reverse-byte sequence~.
+
+For example, for hex number 0725H: 
+#+BEGIN_SRC 
+In register: 
+|--07--|--25--|
+In memory: 
+|--25--|--07--|
+#+END_SRC
+
+** Memory Hierachy
+#+CAPTION: Shows access speeds for different types of storage
+| Memory Unit             | Example Size                  | Typical Speed            |
+|-------------------------+-------------------------------+--------------------------|
+| Processor Registers     | 16 to 64 bit registers        | ~ 1 nanosecond           |
+| Cache Memory            | 4 - 8+  Megabytes (L1 and L2) | ~ 5 to 60 nanoseconds    |
+| Primary Storage (RAM)   | 2 - 32 Gigabytes              | ~ 100 to 150 nanoseconds |
+| Secondary storage (HDD) | 500 Gigabtes to 4+ Terabytes  | ~ 3-15 miliseconds       |
+
+
