@@ -5,7 +5,7 @@
 #+latex_header: \usepackage{setspace}
 #+latex_header: \onehalfspacing
  
-[[https://www.tutorialspoint.com/assembly_programming/assembly_basic_syntax.html][Link to tutorial]]
+[[https://www.tutorialspoint.com/assembly_programming/][Link to tutorial]]
 
 * Three Sections
 An assembly program has the following three sections: Data, BSS, Text.
