@@ -8,7 +8,7 @@
 [[https://www.tutorialspoint.com/assembly_programming/][Link to tutorial]]
 
 * Attribution
-Nothing here is origional, this is barely more than a rewording of ~x86-64 Assembly Language Programming with Ubuntu~ by Ed Jorgensen. Anything not from there is almost certanly from some other popular tutorial. These are just personal notes for my use which you are welcome to read, copy, etc. 
+Nothing here is original, this is barely more than a rewording of ~x86-64 Assembly Language Programming with Ubuntu~ by Ed Jorgensen. Anything not from there is almost certainly from some other popular tutorial. These are just personal notes for my use which you are welcome to read, copy, etc. 
 
 * Three Sections
 An assembly program has the following three sections: Data, BSS, Text.
@@ -23,9 +23,9 @@ This denotes the beginning of the variable section:
 #+BEGIN_SRC asm
 section .bss
 #+END_SRC
-The bss section contains variable declerations. 
+The bss section contains variable declarations. 
 ** text
-This secion contains the actual code.
+This section contains the actual code.
 #+BEGIN_SRC asm
 section .text
   global _start
@@ -38,8 +38,8 @@ Comments are preceded with a semicolon. Comments can contain any printable chara
 ; this is a full line comment
 add eax, ebx  ; this is an inline comment
 #+END_SRC
-* Statments
-There are three types of statments:
+* Statements
+There are three types of statements:
 - instructions
 
 These tell the processor what to do.Each instruction has an op-code.
@@ -51,7 +51,7 @@ These tell the assembler about the various aspects of the assembly process. Thes
 Text substitution
 
 * Tool Chain
-The softare tools used in creating assembly programs are as follows:
+The software tools used in creating assembly programs are as follows:
 - Assembler
 - Linker
 - Loader
@@ -67,9 +67,9 @@ The following command will create a list file for a given program written in a .
 yasm -g dwarf2 -f elf64 example.asm -l example.lst
 #+END_SRC
 
--  ~-g dwarf2~ instructs the assembler to include debugging information in the final objet file.
-- ~-f elf64~  instructs the assembler to output a ELF64 object file, sutable for 64-bit linux systems.
-- ~-l example.lst~ tells the assembler to create a lise file.
+-  ~-g dwarf2~ instructs the assembler to include debugging information in the final object file.
+- ~-f elf64~  instructs the assembler to output a ELF64 object file, suitable for 64-bit Linux systems.
+- ~-l example.lst~ tells the assembler to create a list file.
 
 **** List File 
 
@@ -77,7 +77,7 @@ This file gives a line by line mapping of  assembly to machine language. It can 
 
 **** Two Pass Assembler 
 
-Since assembly language can have control flow commands, such as jumps, if statemtents, etc. Assembly is not necesserily executed linerly. To create machine code from an assembly programm the assembler takes two passed over the code. 
+Since assembly language can have control flow commands, such as jumps, if statements, etc. Assembly is not necessarily executed linearly. To create machine code from an assembly program the assembler takes two passed over the code. 
 
 ***** First Pass
 
@@ -97,7 +97,7 @@ ld -g -o example example.o
 The ~-g~ flag tells the linker to include debugging information. The ~-o~ flag specifies the output file, here ~example~. Multiple object files can be linked together. When using a function from another file, the function must be flagged with ~extern~.
 
 *** Dynamic Linking
-Linux supports dynamic linking. This allows resolution of some symbols be postponed untill the execution of the program. Under Linux dynamically linked object files have the extention ~.so~, shared object. The Windows equivilant is ~.dll~.
+Linux supports dynamic linking. This allows resolution of some symbols be postponed until the execution of the program. Under Linux dynamically linked object files have the extension ~.so~, shared object. The Windows equivalent is ~.dll~.
 
 *** Assemble/Link Script
 The following is an example of a bash script to automate the calls to the assembler and linker into a single call.
@@ -110,7 +110,7 @@ if [ -z $1 ]; then
   exit
 fi
 
-# verify no extentions were entered
+# verify no extent ions were entered
 if [ ! -e "$1.asm" ]; then
   echo "Error, $1.asm not found."
   echo "Note, do not enter file extensions."
@@ -119,7 +119,7 @@ fi
 
 #  Compile, assemble, and link
 
-yasm -Worphan-lables -g dwarf2 -f elf64 $1.asm -l $1.lst ld -g -o $1 $1.o  
+yasm -Worphan-labels -g dwarf2 -f elf64 $1.asm -l $1.lst ld -g -o $1 $1.o  
 
 #+END_SRC
 
@@ -138,7 +138,7 @@ Assembly language has one statement per line
 #+BEGIN_SRC 
 [label] mnemonic [operands] [; comment]
 #+END_SRC
-Fields in the square brackets are optional. There are two basic parts to the instruction - the name (nmemonic) and the operands.For example: 
+Fields in the square brackets are optional. There are two basic parts to the instruction - the name (mnemonic) and the operands.For example: 
 #+BEGIN_SRC asm 
 INC COUNT ; increment the variable COUNT
 
@@ -181,9 +181,9 @@ ld -m elf_i386 -s -o hello hello.o
 #+END_SRC
 * Memory Segments
 ** Segmented memory model:
-In a segmented memory model the system memory is divided into idependent segments. Segments are used to store specific types of data. One segment for instruction codes, one for data elements, etc.
+In a segmented memory model the system memory is divided into independent segments. Segments are used to store specific types of data. One segment for instruction codes, one for data elements, etc.
 ** Data segment
-Represented by the ~.data~ section and the ~.bss~ section. The ~.data~ section is holds static data that remains unchanges during the course of the program. The ~.bss~ section is also for static data. Data here are declared during the course of the program. The ~.bss~ section is zero filled prior to execution.
+Represented by the ~.data~ section and the ~.bss~ section. The ~.data~ section is holds static data that remains unchanged during the course of the program. The ~.bss~ section is also for static data. Data here are declared during the course of the program. The ~.bss~ section is zero filled prior to execution.
 ** Code segment
 Represented by the ~.text~ section. Fixed data that stores instruction codes.
 ** Stack
@@ -254,9 +254,9 @@ Indicates overflow of leftmost bit in a signed math operation
 - DF - ~Direction Flag~
 In string comparison operations, indicates left or right direction of movement. 0 for left-to-right and 1 is right-to-left
 - IF - ~Interrupt Flag~
-Flags if keyboard or other interupts are to be ignored or processed. 0 for ignored or 1 for processed.
+Flags if keyboard or other interrupts are to be ignored or processed. 0 for ignored or 1 for processed.
 - TF - ~Trap Flag~
-Allows the procssor to wor in single step mode for debug perposes. 
+Allows the processor to work in single step mode for debug purposes. 
 - SF - ~Sign Flag~ 
 Indicates the sign of a arithmetic result.
 - ZF - ~Zero Flag~
@@ -266,7 +266,7 @@ Used for specialized arithmetic to carry from bit 3 to bit 4.
 - PF - ~Parity Flag~
 Indicates the total number of 1 (on) bits in the result of an arithmetic expression. If even then 0, odd then 1.
 - CF - ~Carry Flag~
-Contains the carry from the leftmost bit after an atrithmetic operation. It also stores the contents of the last bit of a ~shift~ or ~rotate~ operation.
+Contains the carry from the leftmost bit after an arithmetic operation. It also stores the contents of the last bit of a ~shift~ or ~rotate~ operation.
 
 #+CAPTION: Positions of flag in the flags register
 | Flag |    |    |    |    |  O |  D | I | T | S | Z |   | A |   | P |   | C |
@@ -285,7 +285,7 @@ Contains the starting address of the stack segment.
 
 There are additional segment registers: ES, FS, GS. 
 
-All memory locations within a segment are relitive to the starting address of the segment. Since all segments will start at an address that is evently divisable by 16 (hex 10) there is always a zero in the rightmost hex digit. This zero is not stored in segment registers.
+All memory locations within a segment are relative to the starting address of the segment. Since all segments will start at an address that is evenly divisible by 16 (hex 10) there is always a zero in the rightmost hex digit. This zero is not stored in segment registers.
 
 ** Example of using registers
 
@@ -293,7 +293,7 @@ All memory locations within a segment are relitive to the starting address of th
 section .text
   global _start   ; must be declared for linker (gcc)
 
-_start:           ; tell linter entry point
+_start:           ; tell linker entry point
   mov edx,len     ; message length
   mov ecx,msg     ; message to write
   mov ebx,1       ; file descriptor (stout)
@@ -365,14 +365,14 @@ lea <reg64>, <mem>
 lea rcx, byte [bvar] ; put the location of bvar into the rcx register
 #+END_SRC
 ** Convert
-Conversion instructions change a variable from one size to another. Narrowing conversions require no specific instructions since the lower portions of registers are directly accessable. 
+Conversion instructions change a variable from one size to another. Narrowing conversions require no specific instructions since the lower portions of registers are directly accessible. 
 #+BEGIN_SRC asm
 mov rax, 50
 mov byte [bval], al
 #+END_SRC 
 Widening conversions vary depending on the data types involved.
 *** widening - unsigned
-Unsigned numbers only take poisitive values, therefore when dealing with unsigned numbers the upper part of the memory location or register must be set to zero. 
+Unsigned numbers only take positive values, therefore when dealing with unsigned numbers the upper part of the memory location or register must be set to zero. 
 #+BEGIN_SRC asm
 mov al, 50
 mov rbx, 0
@@ -383,7 +383,7 @@ There is an instruction especially for performing this: ~movzx~
 #+BEGIN_SRC asm
 movzx  <dest>, <src>
 #+END_SRC
-NB: This does not work when converting a quadword destination with a double word source operand. However, simply using mov in this situation will achive the desired result since it will set the upper portion of the register or memory location to zeros.
+NB: This does not work when converting a quadword destination with a double word source operand. However, simply using mov in this situation will achieve the desired result since it will set the upper portion of the register or memory location to zeros.
 *** widening - signed
 When the data is signed, the upper portion must be set to ether zeros or ones depending on the sign of the number. 
 #+BEGIN_SRC asm 
@@ -411,15 +411,15 @@ mov  al, byte [Num1]
 add  al, byte [Num2]
 mov  byte [Ans], al
 #+END_SRC
-There is also a command for incrementing a value by 1.
+There is also a command for incriminating a value by 1.
 #+BEGIN_SRC asm
 inc <operand>
 ; for example:
 inc rax
-; when incrementing an operand in memory, specify the size:
+; when incriminating an operand in memory, specify the size:
 inc byte [bNum]
 #+END_SRC
-When the numbers being added will result in a sum greater than the register size of the machine, it is necessery to add with a carry. In this situation the ~Least Significant Quadword~ is added with an ~add~ instruction, then the ~Most Significant Quadword~ is added with an ~adc~ (add with carry). The second addition must immediatly follow the first so that the ~carry flag~ is not altered by anything else.
+When the numbers being added will result in a sum greater than the register size of the machine, it is necessary to add with a carry. In this situation the ~Least Significant Quadword~ is added with an ~add~ instruction, then the ~Most Significant Quadword~ is added with an ~adc~ (add with carry). The second addition must immediately follow the first so that the ~carry flag~ is not altered by anything else.
 
 #+BEGIN_SRC asm 
 dquad1  ddq 0x1A000000000000000
@@ -441,7 +441,7 @@ mov qword [dqSum+8], rdx
 #+END_SRC
 
 *** Subtraction
-The subtraction commands are self-explanitory when taken with the above information on addition.
+The subtraction commands are self-explanatory when taken with the above information on addition.
 #+BEGIN_SRC asm 
 sub <dest>, <src>
 dec <operand>
@@ -450,7 +450,7 @@ dec <operand>
 *** Multiplication
 There are different commands for multiplying signed or unsigned integers. Both typically produce double sized results. 
 **** Unsigned Integer Multiplication
-The genral form is as follows:
+The general form is as follows:
 #+BEGIN_SRC asm
 mul  <src>
 #+END_SRC
@@ -479,7 +479,7 @@ mov  dword [Ans+2], bx
 #+END_SRC
 
 **** Signed Integer multiplication
-Signed integer multiplication is more flexable with its operands / sizes. The destination must always be a register.
+Signed integer multiplication is more flex able with its operands / sizes. The destination must always be a register.
 
 #+BEGIN_SRC asm
 imul <src>
@@ -491,7 +491,7 @@ imul <dest>, <src>, <imm>
 - When three operands are used, the last two are multiplied and the product is placed in the destination. The ~src~ must not be an immediate value. The ~imm~ must be an immediate value. The result is truncated to the size of the destination operand. Byte size destination is not supported.
 
 **** Integer Division
-Division requires that the dividend is larger in data type size than the divisor. It is critical that the dividend is set correctly for division to work. For word, double word and quad word divisions the dividend requires both the ~D~ (for upper) and ~A~ (for lower) registers. The divisor can be a memory location or a register, not an intermediate. The result will be placed in the ~A~ register, the remainder will go into ether the ~ah~, ~dx~, ~edx~ or ~rdx~ reigsters. 
+Division requires that the dividend is larger in data type size than the divisor. It is critical that the dividend is set correctly for division to work. For word, double word and quad word divisions the dividend requires both the ~D~ (for upper) and ~A~ (for lower) registers. The divisor can be a memory location or a register, not an intermediate. The result will be placed in the ~A~ register, the remainder will go into ether the ~ah~, ~dx~, ~edx~ or ~rdx~ registers. 
 
 | Size        | Dividend registers | Divisor | result register | remainder register |
 |-------------+--------------------+---------+-----------------+--------------------|
@@ -500,7 +500,7 @@ Division requires that the dividend is larger in data type size than the divisor
 | Double Word | edx, eax           | op32    | eax             | edx                |
 | Quad Word   | rdx, rax           | op64    | rax             | rdx                |
 
-Signed and unsigned integer division instructions work in the same way but have differrent instructions.
+Signed and unsigned integer division instructions work in the same way but have different instructions.
 
 #+BEGIN_SRC asm
 div <src>  ; unsigned
@@ -574,7 +574,7 @@ jmp <label> ; moves execution in the program to the label.
 #+END_SRC
 
 *** Conditional Control Instructions
-These are made up of two instructions that must happen one immediatly after the other. First there has to be some sort of comparison, then the jump instruction. The comparison will compare two operands and store the result in the ~rFlag~ register.
+These are made up of two instructions that must happen one immediately after the other. First there has to be some sort of comparison, then the jump instruction. The comparison will compare two operands and store the result in the ~rFlag~ register.
 
 #+BEGIN_SRC asm
 cmp <op1>, <op2> ; operands must be of the same size.
@@ -594,14 +594,14 @@ In memory:
 |--25--|--07--|
 #+END_SRC
 
-** Memory Hierachy
+** Memory Hierarchy
 #+CAPTION: Shows access speeds for different types of storage
 | Memory Unit             | Example Size                  | Typical Speed            |
 |-------------------------+-------------------------------+--------------------------|
 | Processor Registers     | 16 to 64 bit registers        | ~ 1 nanosecond           |
 | Cache Memory            | 4 - 8+  Megabytes (L1 and L2) | ~ 5 to 60 nanoseconds    |
 | Primary Storage (RAM)   | 2 - 32 Gigabytes              | ~ 100 to 150 nanoseconds |
-| Secondary storage (HDD) | 500 Gigabtes to 4+ Terabytes  | ~ 3-15 miliseconds       |
+| Secondary storage (HDD) | 500 Gigabytes to 4+ Terabytes  | ~ 3-15 milliseconds       |
 
 ** Integer representation
 | size name       |  size | unsigned range | signed range           |
@@ -613,7 +613,7 @@ In memory:
 | double quadword | 2^128 | 0  - 2^128 -1  | -(2^127) - 2^127 -1    |
 
 ** Two's Complement
-Signed numbers are often represented in twos complement form. A negitive representation of a positive number can be made by flipping the bits and then adding 1. For example:
+Signed numbers are often represented in twos complement form. A negative representation of a positive number can be made by flipping the bits and then adding 1. For example:
 
 |      9 | 00001001 |
 | step 1 | 11110110 |
