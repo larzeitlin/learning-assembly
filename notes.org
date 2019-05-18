@@ -7,6 +7,9 @@
  
 [[https://www.tutorialspoint.com/assembly_programming/][Link to tutorial]]
 
+* Attribution
+Nothing here is origional, this is barely more than a rewording of ~x86-64 Assembly Language Programming with Ubuntu~ by Ed Jorgensen. Anything not from there is almost certanly from some other popular tutorial. These are just personal notes for my use which you are welcome to read, copy, etc. 
+
 * Three Sections
 An assembly program has the following three sections: Data, BSS, Text.
 ** data
@@ -528,7 +531,6 @@ xor <dest>, <src>   ; both cannot be memory
 not <op>   ; op cannot be immediate
 #+END_SRC
 ** Shift
-*** Logical shift
 #+BEGIN_SRC asm
 ; logical shifts
 shl <dest>, <imm> ; shift left, imm or cl must between 1 and 64
@@ -546,6 +548,39 @@ sar <dest>, <imm> ; right shift. Sign bit fills the space made:  1101 -> 1110
 sar <dest>, cl
 
 #+END_SRC
+** Rotate
+Rotations are essentially shifts that put the bits that would be shifted off the end onto the beginning, or vica verca.
+#+BEGIN_SRC asm
+rol <dest>, <imm> ; rotate left
+rol <dest> cl
+
+
+ror <dest>, <imm> ; rotate right
+ror <dest> cl
+; for example:
+
+rol rcx, 32
+ror qword [qNum], cl
+#+END_SRC
+the ~imm~ or the value in the ~cl~ register must be between 1 and 64. The destination operand cannot be immediate.
+** Control instructions
+These include structures such as if statements and looping.
+*** Labels
+These are targets for jumps. These should start with a letter, and my include numbers, underscores, and should be followed by a colon. In ~YASM~ labels are case sensitive.
+
+*** Unconditional control instructions.
+#+BEGIN_SRC asm
+jmp <label> ; moves execution in the program to the label.
+#+END_SRC
+
+*** Conditional Control Instructions
+These are made up of two instructions that must happen one immediatly after the other. First there has to be some sort of comparison, then the jump instruction. The comparison will compare two operands and store the result in the ~rFlag~ register.
+
+#+BEGIN_SRC asm
+cmp <op1>, <op2> ; operands must be of the same size.
+; op1 must not be immediate, op2 may be immediate.
+#+END_SRC
+
 * Related Topics
 ** Addressing data in memory
 The process through which execution is controlled is called the ~fetch-decode-execute cycle~. The instruction is fetched from memory. The processor can access one or more bytes of memory at a given time.
