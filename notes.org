@@ -4,7 +4,7 @@
 #+latex_class_options: [10pt]
 #+latex_header: \usepackage{setspace}
 #+latex_header: \onehalfspacing
- 
+
 [[https://www.tutorialspoint.com/assembly_programming/][Link to tutorial]]
 
 * Attribution
@@ -580,7 +580,98 @@ These are made up of two instructions that must happen one immediately after the
 cmp <op1>, <op2> ; operands must be of the same size.
 ; op1 must not be immediate, op2 may be immediate.
 #+END_SRC
+This should be followed by a jump instruction. 
+#+BEGIN_SRC asm
+je <label>  ; if op1 == op2
+jne <label> ; if op1 != op2
+jl <label>  ; signed, if op1 < op2
+jle <label> ; signed, if op1 <= op2
+jg <label>  ; signed, if op1 > op2
+jge <label> ; signed, if op1 >= op2
+jb <label>  ; unsigned, if op1 < op2
+jbe <label> ; unsigned, if op1 <= op2
+ja <label>  ; unsigned, if op1 > op2
+jae <label> ; unsigned, if op1 >= op2
+#+END_SRC
 
+
+For example, this is a possible implementation for an if else statement:
+
+#+BEGIN_SRC asm
+; using the following declerations:
+
+  TRUE    equ   1
+  FALSE   equ   0
+  x       dd    0
+  y       dd    0
+  ans     dd    0 
+  errFlag db    FALSE
+
+; -------
+
+  cmp    dword [x], 0    ; compare the contents of x to 0
+  je     doElse          ; if eaual go to location deElse 
+  mov    eax, dword [x]  ; ... the "not equal branch". Put x in eax
+  cdq                    ; change dword into qword (prep for division)
+  idiv   dword [y]       
+  mov    dword [ans] eax
+  mov    byte [errFlag]
+  jmp    skpElse
+doElse:
+  mov    dword [ans], 0
+  mov    byte [errflg], TRUE  
+skp:Else:
+#+END_SRC
+Notes for the above example:
+1) since using signed division ~idiv~, conversion was required: ~cdq~.
+2) ~ebx~ was overwritten.
+
+*** Jump Range
+For the above ~short jumps~ the target label must be no more than 128 bytes from the jump call. However, this limit does not apply for the unconditional jump ~jmp~.
+
+** Iteration
+Iteration commands can be used to make simple loops. For example, the following codeblock shows a loop for summing odd integers within a range:
+
+#+BEGIN_SRC asm 
+  lpCnt  dq  15
+  sum    dq  0
+
+; using the above declerations:
+  mov rcx, qword [1pCnt]  ; loop Counter
+  mov rax, 1              ; odd integer counter
+sumLoop:
+  add qword [sum], rax    ; sum current odd interger
+  add rax, 2              ; set next odd integer
+  dec rcx                 ; decrement loop cionter
+  cmp rcx, 0              ; decrement loop counter
+  jne sumLoop             
+
+#+END_SRC
+** Example program using intructions
+#+BEGIN_SRC asm
+section .data
+  SUCCESS      equ  0
+  SYS_exit     equ  60
+  n            10
+  sumOfSquares dq   0 
+section .text
+global start
+_start:
+  mov         rbx, 1
+  mov         ecx, dword [n]
+sumloop:
+  mov         rax, rbx
+  mul         rax
+  add         qword [sumOfSquares], rax
+  inc         rbx
+  cmp         rbx, [n]
+  je          last
+  loop        sumLoop
+last: 
+  mov         rax, SYS_exit
+  mov         rdi, SUCCESS
+  syscall
+#+END_SRC
 * Related Topics
 ** Addressing data in memory
 The process through which execution is controlled is called the ~fetch-decode-execute cycle~. The instruction is fetched from memory. The processor can access one or more bytes of memory at a given time.
