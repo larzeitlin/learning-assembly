@@ -201,9 +201,10 @@ The 32 bit processor has 10 registers. These are grouped into the following cate
 **** Data
 
 These are used for arithmetic, logic and other operations. They have three different modes of usage:
-- As complete 32-bit registers: EAX, EBX, ECX, EDX
+- As complete 32-bit registers: EAX, EBX, ECX, EDX (RAX RBX RCX RDX for 64 bit registers)
 - The lower halves can be used as four 16 bit data registers: AX, BX, CX, DX
 - The lower halves of the above 16 bit registers can be used as eight 8-bit registers: AH, AL, BH, BL, CH, CL, DH, DL
+
 
 #+BEGIN_SRC 
 ......................+AX++Accumulator+
@@ -218,6 +219,27 @@ ECX |----------------|---CH---|---CL---|
 ......................++++DX++Data+++++
 EDX |----------------|---DH---|---DL---|
 #+END_SRC
+Although the above are most frequently used, there are in total 16 general purpose 64-bit registers.
+
+| 64-bit | lower 32-bits | lower 16-bits | lower 8-bits |
+|--------+---------------+---------------+--------------|
+| rax    | eax           | ax            | al           |
+| rbx    | ebx           | bx            | bl           |
+| rcx    | ecx           | cx            | cl           |
+| rdx    | edx           | dx            | dl           |
+| rsi    | esi           | si            | sil          |
+| rdi    | edi           | di            | dil          |
+| dbp    | ebp           | bp            | bpl          |
+| rsp    | esp           | sp            | spl          |
+| r8     | r8d           | r8w           | r8b          |
+| r9     | r9d           | r9w           | r9b          |
+| r10    | r10d          | r10w          | r10b         |
+| r11    | r11d          | r11w          | r11b         |
+| r12    | r12d          | r12w          | r12b         |
+| r13    | r13d          | r13w          | r13b         |
+| r14    | r14d          | r14w          | r14b         |
+| r15    | r15d          | r15w          | r15b         |
+ 
 
 - AX - ~Primary Accumulator~ 
 I/O for most arithmetic instructions, for example multiplication. One operand is stored in other EAX, AX or AL depending on size.
@@ -314,6 +336,9 @@ msg db 'Displaying 9 stars',0xa  ; a message
 len equ $ - msg ; length of message
 s2 times 9 db '*'
 #+END_SRC
+** XMM Registers
+These are used to support floating point operations and Single Instruction Multiple Data (SMID) Instructions, used in graphics and DSP calculations. These are xmm0 to xmm15.
+ 
 * System Calls
 API between the the ~user space~ and the ~system space~.
 System calls are used by putting the number associated with that call into ~EAX~ and the arguments to that system call into other specific registers.
@@ -645,6 +670,20 @@ sumLoop:
   dec rcx                 ; decrement loop cionter
   cmp rcx, 0              ; decrement loop counter
   jne sumLoop             
+
+#+END_SRC
+** Loop
+There is a loop instruction which simplifies iteration. It will automatically decriment the ~rcx~ register and perform a comparison to 0, jumping when ~rcx~ != 0.
+
+#+BEGIN_SRC asm
+; summing n odd numbers
+
+  mov rcx qword [naxN]   ; loop counter
+  mov rax, 1             ; pdd int counter
+sumLoop:
+  add qword [sum], rax   ; sum current odd int.
+  add rax, 2             ; next odd int
+  loop sumLoop 
 
 #+END_SRC
 ** Example program using intructions
