@@ -1,5 +1,5 @@
-#+TITLE:ASSEMBLY NOTES
-#+AUTHOR: Luke Zeitlin
+#+TITLE:ASSEMBLY NnOTES
+
 #+OPTIONS: toc:1
 #+latex_class_options: [10pt]
 #+latex_header: \usepackage{setspace}
@@ -56,7 +56,6 @@ The software tools used in creating assembly programs are as follows:
 - Linker
 - Loader
 - Debugger
-
 ** Assembler 
 The assembler is a program converts assembly code into machine language (binary). The output file is known as an object file, hence the .o suffix. During this process the variable names get removed and converted into addresses.
 
@@ -132,6 +131,45 @@ This is the part of the operating system that loads the program from secondary s
 ** Debugger
 
 This is a program that can control the execution of the assembly program in order to inspect how it is (or is not) working. 
+*** GDB
+GDB is a debugger for assembly language as well as C/C++. It is terminal-based but also can be run in emacs. To start in emacs use ~m-x gdb~ or to run in the terminal use:
+#+BEGIN_SRC sh
+$ gdb <executable>
+#+END_SRC
+Prior to this, compile and link the asm source code so that it can be debugged. For example, in order to do this for ~myprogram.asm~:
+
+#+BEGIN_SRC shell
+$ nasm -g -f elf64 -l myprogram.lst myprogram.asm && ld -g -o myprogram myprogram.o
+#+END_SRC  
+
+here ~-g~  causes NASM to generate debug information. ~-f~ spefifies the file format (in this case elf64). ~-l~ specifies the lst file to be made. Following the call to NASM, a call is made to the GNU linker ld.  
+
+To simplify this process, it is recommended to have a shell script to automate assembling and linking in debug mode:
+
+#+BEGIN_SRC shell
+#!/bin/bash
+
+nasm -g -f elf64 -l $1.lst $1.asm && ld -g -o $1 $1.o
+#+END_SRC
+
+To start the execution of a program in ~gdb~ use:
+#+BEGIN_SRC shell
+(gdb) start
+#+END_SRC
+**** GDB commands
+
+| Command                      | Action                                     |
+|------------------------------+--------------------------------------------|
+| b N                          | breakpoint at line N                       |
+| b fn                         | breakpoint at function fn                  |
+| d N                          | delete breakpoint number N                 |
+| info break                   | list breakpoints                           |
+| r                            | run until breakpoint or error              |
+| c                            | continue running until breakpoint or error |
+| s                            | run next line                              |
+| p var                        | print current value of variable var        |
+| info registers / i r         | print names and values of registers        |
+| info registers eax / i r eax | prints register eax                        |
 
 * Syntax of Statements
 Assembly language has one statement per line
@@ -164,7 +202,8 @@ msg db 'Hello, world!', 0xa ; string to be printed
 en equ $ - msg ; length of the string
 
 #+END_SRC
-* Compiling and linking with nasm
+
+* Compiling and linking with NASM
 - save the above as a file with extension .asm, for example: hello.asm
 - assemble program with: 
 #+BEGIN_SRC shell
