@@ -1,4 +1,4 @@
-#+TITLE:ASSEMBLY NnOTES
+#+TITLE:ASSEMBLY NOTES
 
 #+OPTIONS: toc:1
 #+latex_class_options: [10pt]
@@ -387,7 +387,7 @@ mov  edx,4    ; message length
 mov  ecx,msg  ; some message that has been defined in the data section
 mov  ebx,1    ; file descriptor (1 is for standard out)
 mov  eax,4    ; system call number (sys_write)
-int  0x08     ; call kernel
+int  0x80     ; call kernel
 #+END_SRC
 
 All syscalls are listed in  /usr/include/asm/unistd.h which can be used to look up their numbers. The following is a table of commonly used system calls with their arguments:
@@ -743,7 +743,7 @@ last:
   mov         rdi, SUCCESS
   syscall
 #+END_SRC
-* Calling C libraries in ASM
+* Calling C libraries
 C librries can be called from assembly provided they are compiled together. For example:
 #+BEGIN_SRC asm
 extern printf
