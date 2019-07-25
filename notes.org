@@ -40,14 +40,14 @@ add eax, ebx  ; this is an inline comment
 #+END_SRC
 * Statements
 There are three types of statements:
+
 - instructions
-
 These tell the processor what to do.Each instruction has an op-code.
+
 - directives or pseudo-ops
-
 These tell the assembler about the various aspects of the assembly process. These are non-executable.
-- macros
 
+- macros
 Text substitution
 
 * Tool Chain
@@ -56,10 +56,9 @@ The software tools used in creating assembly programs are as follows:
 - Linker
 - Loader
 - Debugger
-** Assembler 
+** Assembler
 The assembler is a program converts assembly code into machine language (binary). The output file is known as an object file, hence the .o suffix. During this process the variable names get removed and converted into addresses.
-
-*** Assembler commands for yasm
+*** Assembling with YASM
 The following command will create a list file for a given program written in a .asm: 
 
 #+BEGIN_SRC shell
@@ -71,20 +70,32 @@ yasm -g dwarf2 -f elf64 example.asm -l example.lst
 - ~-l example.lst~ tells the assembler to create a list file.
 
 **** List File 
-
-This file gives a line by line mapping of  assembly to machine language. It can be useful for debugging.
+This file gives a line by line mapping of assembly to machine language. It can be useful for debugging.
 
 **** Two Pass Assembler 
-
 Since assembly language can have control flow commands, such as jumps, if statements, etc. Assembly is not necessarily executed linearly. To create machine code from an assembly program the assembler takes two passed over the code. 
 
 ***** First Pass
-
 Often this includes tasks such as creating a symbol table, expanding macros and evaluating constant expressions. 
 
 ***** Second Pass
-
 This usually includes the final generation of the code, creation of the list file, if required, and creating the object file.
+
+*** Assembling with NASM
+- save the above as a file with extension .asm, for example: hello.asm
+- assemble program with: 
+#+BEGIN_SRC shell
+nasm -f elf hello.asm
+#+END_SRC
+- if no errors, hello.o will have been created
+- To link the object file and create the executable file named hello: 
+#+BEGIN_SRC shell
+ld -m elf_i386 -s -o hello hello.o
+#+END_SRC
+- execute with: 
+#+BEGIN_SRC shell
+./hello
+#+END_SRC
 
 ** Linker
 Also known as the linkage editor. This combines object files into a single executable. It also includes any libraries required for execution. The following is a command for the GNU Gold linker:
@@ -129,7 +140,6 @@ This is the part of the operating system that loads the program from secondary s
 ./hello_world
 #+END_SRC
 ** Debugger
-
 This is a program that can control the execution of the assembly program in order to inspect how it is (or is not) working. 
 *** GDB
 GDB is a debugger for assembly language as well as C/C++. It is terminal-based but also can be run in emacs. To start in emacs use ~m-x gdb~ or to run in the terminal use:
@@ -203,21 +213,6 @@ en equ $ - msg ; length of the string
 
 #+END_SRC
 
-* Compiling and linking with NASM
-- save the above as a file with extension .asm, for example: hello.asm
-- assemble program with: 
-#+BEGIN_SRC shell
-nasm -f elf hello.asm
-#+END_SRC
-- if no errors, hello.o will have been created
-- To link the object file and create the executable file named hello: 
-#+BEGIN_SRC shell
-ld -m elf_i386 -s -o hello hello.o
-#+END_SRC
-- execute with: 
-#+BEGIN_SRC shell
-./hello
-#+END_SRC
 * Memory Segments
 ** Segmented memory model:
 In a segmented memory model the system memory is divided into independent segments. Segments are used to store specific types of data. One segment for instruction codes, one for data elements, etc.
@@ -290,7 +285,6 @@ Stores loop counts in various iterative operations
 Also used in I/O. Notably when large numbers are involved. 
 
 **** Pointer Registers
-
 Stores addresses in memory. In 32-bit these are EIP, ESP and EBP. In 16-bit these correspond to IP, SP and BP.
 - IP - ~Instruction Pointer~
 Stores the ~offset address~ of the next instruction to be executed. In combination with the ~CS~ register (CS:IP) gives the full address of the current instruction in code segment.
@@ -301,7 +295,6 @@ Helps in referencing the parameter variables passed to a subroutine. The address
 in combination with the offset BP gives the location of a parameter. Can also be combined with DI and SI as a base register for special addressing. 
 
 **** Index Registers
-
 ESI and EDI in 32-bit, or SI and DI in 16-bit.
 - SI - ~Source Index~
 Source index for string operations
@@ -750,6 +743,42 @@ last:
   mov         rdi, SUCCESS
   syscall
 #+END_SRC
+* Calling C libraries in ASM
+C librries can be called from assembly provided they are compiled together. For example:
+#+BEGIN_SRC asm
+extern printf
+
+section .data
+  msg: db "Hello World", 0; Zero is used as a null termainator
+  fmt: db "%s", 10, 0; printf formatting followed by newline and null terminator
+
+section .text
+  global main
+
+main:
+  push rbp ; push stack
+; Set up params for call to printf
+  mov rdi, fmt
+  mov rsi, msg
+  mov rax, 0
+  call printf
+
+  pop rbp ; pop stack
+  mov rax, 0 ; exit code 0
+  ret ; return
+#+END_SRC
+ 
+To compile and run the above using NASM and GCC:
+
+#+BEGIN_SRC shell
+$ nasm calling_c.asm -f elf64 -o calling_c.o
+
+$ gcc -g -no-pie -o calling_c calling_c.o
+
+$ ./calling_c 
+#+END_SRC
+
+
 * Related Topics
 ** Addressing data in memory
 The process through which execution is controlled is called the ~fetch-decode-execute cycle~. The instruction is fetched from memory. The processor can access one or more bytes of memory at a given time.
@@ -789,4 +818,3 @@ Signed numbers are often represented in twos complement form. A negative represe
 | step 2 | 11110111 |
 |--------+----------|
 |     -9 | 11110111 |
-
