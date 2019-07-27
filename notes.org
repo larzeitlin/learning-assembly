@@ -5,8 +5,6 @@
 #+latex_header: \usepackage{setspace}
 #+latex_header: \onehalfspacing
 
-[[https://www.tutorialspoint.com/assembly_programming/][Link to tutorial]]
-
 * Attribution
 Nothing here is original, this is barely more than a rewording of ~x86-64 Assembly Language Programming with Ubuntu~ by Ed Jorgensen. Anything not from there is almost certainly from some other popular tutorial. These are just personal notes for my use which you are welcome to read, copy, etc. 
 
@@ -826,3 +824,6 @@ Signed numbers are often represented in twos complement form. A negative represe
 | step 2 | 11110111 |
 |--------+----------|
 |     -9 | 11110111 |
+* Handy Links
+[[https://www.tutorialspoint.com/assembly_programming/][Link to tutorial]]
+[[http://www.egr.unlv.edu/~ed/assembly64.pdf][Another good tutorial]]
