@@ -180,7 +180,7 @@ To start the execution of a program in ~gdb~ use:
 | p var                        | print current value of variable var        |
 | info registers / i r         | print names and values of registers        |
 | info registers eax / i r eax | prints register eax                        |
-
+| x/<data-type> &<name>        | print contents of memory at name           |
 * Syntax of Statements
 Assembly language has one statement per line
 #+BEGIN_SRC 
@@ -677,11 +677,22 @@ For example, this is a possible implementation for an if else statement:
 doElse:
   mov    dword [ans], 0
   mov    byte [errflg], TRUE  
-skp:Else:
+skpElse:
 #+END_SRC
 Notes for the above example:
 1) since using signed division ~idiv~, conversion was required: ~cdq~.
 2) ~ebx~ was overwritten.
+
+Conditional jumps can be adjacent. for example:
+#+BEGIN_SRC asm
+...
+   cmp dword [x], 100
+   je  equalsJump
+   jl  lessThanJump
+   jg  greaterThanJump
+...
+
+#+END_SRC
 
 *** Jump Range
 For the above ~short jumps~ the target label must be no more than 128 bytes from the jump call. However, this limit does not apply for the unconditional jump ~jmp~.
@@ -723,7 +734,7 @@ sumLoop:
 section .data
   SUCCESS      equ  0
   SYS_exit     equ  60
-  n            10
+  n            dd   10
   sumOfSquares dq   0 
 section .text
 global start
@@ -735,8 +746,6 @@ sumloop:
   mul         rax
   add         qword [sumOfSquares], rax
   inc         rbx
-  cmp         rbx, [n]
-  je          last
   loop        sumLoop
 last: 
   mov         rax, SYS_exit
@@ -777,7 +786,6 @@ $ gcc -g -no-pie -o calling_c calling_c.o
 
 $ ./calling_c 
 #+END_SRC
-
 
 * Related Topics
 ** Addressing data in memory
